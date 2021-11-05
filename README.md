@@ -844,7 +844,7 @@ Example:
 
 # Pruebas Unitarias
 
-> Desde una sesion de consola acceder a `smart-contract-code` y ejecutar el comando smart-contract-code.
+> Desde una sesion de consola acceder a `smart-contract-code` y ejecutar el comando:
 ```bash
 yarn asp
 ```

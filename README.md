@@ -1,65 +1,51 @@
-# NEAR REST API SERVER
+# NEAR lista de precios
 
-> Interact with the NEAR blockchain using a simple REST API.
+> Creación de listas de artículos, precios y tienda de compra basado en protocolo NEAR, se compone de un servicio backend hecho en NodeJS que interactúa con el protocolo NEAR mediante la libreria NEAR-API-JS, de esa manera se ofrece un REST API sencillo. Se integra ademas un frontend basado en Laravel que opera con los endpoints del backend para la creación y eliminación de artículos, precios y tiendas de compra en el blockchain de NEAR.
 
-###### Live Demo:
-* [REST API Endpoint for NEAR Testnet](https://rest.nearapi.org) 
-* [Web Console for `view`/`call` requests](https://web.nearapi.org) 
+###### Demo:
+* [REST API Backend con conectividad al NEAR Testnet y Laravel Frontend](https://nearpricelist.tk) 
 
 ---
 
-## Overview
+## Descripcion General
 
-_Click on a route for more information and examples_
-
-| Route                                      | Method | Description                                                                                                                 |
+| Ruta                                      | Metodo | Descripcion                                                                                                                 |
 | ------------------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------- |
-| **CONTRACTS**                              |        |                                                                                                                             |
-| [`/deploy`](#deploy)                       | POST   | Deploys a smart contract on NEAR.                                                                                           |
-| [`/view`](#view)                           | POST   | Performs a smart contract **view** call with no gas burnt.                                                                  |
-| [`/call`](#call)                           | POST   | Performs a smart contract **change** call that burns gas.                                                                   |
-|                                            |        |                                                                                                                             |
-| **UTILS**                                  |        |                                                                                                                             |
-| [`/init`](#init)                           | POST   | Initializes the master account and updates `near-api-server-config.json`                                                    |
-| [`/create_user`](#create_user)             | POST   | Creates a NEAR [sub-account](https://docs.near.org/docs/concepts/account#subaccounts) and stores credentials in `/storage`. |
-| [`/parse_seed_phrase`](#parse_seed_phrase) | POST   | Displays public and private key pair from a given seed phrase.                                                              |
-| [`/balance`](#balance)                     | GET    | Displays account balance.                                                                                                   |
-| [`/keypair`](#keypair)                     | GET    | Generates Ed25519 key pair.                                                                                                 |
-| [`/explorer`](#explorer)                   | POST   | Run SELECT query in NEAR explorer database.                                                                                 |
-|                                            |        |                                                                                                                             |
-| **NFT EXAMPLE**                            |        |                                                                                                                             |
-| [`/mint_nft`](#mint_nft)                   | POST   | Mints an NFT for a given contract.                                                                                          |
-| [`/transfer_nft`](#transfer_nft)           | POST   | Transfers NFT ownership to a specified account.                                                                             |
-| [`/view_nft`](#view_nft)                   | POST   | Returns owner, metadata, and approved account IDs for a given token ID.                                                     |
+| [`/deploy`](#deploy)                       | POST   | Despliega un Contrato en NEAR.                                                     
+| [`/addProduct`](#addProduct)                           | POST   | Agrega un producto al listado en el storage del blockchain                                                    |
+| [`/getAllProducts`](#getAllProducts)             | POST   | Obtiene un listado de productos almacenados en el storage del blockchain |
+| [`/getAllProductsByListId`](#getAllProductsByListId) | POST   | Obtiene un listado de productos ordenados por categoria almacenados en el storage del blockchain.                                                              |
+| [`/getProduct`](#getProduct)                     | POST    | Obtiene un producto por id almacenado en el storage del blockchain.                                                                                                   |
+| [`/deleteProduct`](#deleteProduct)                     | POST    | Elimina un producto del listado almacenado en el storage del blockchain.                                                                                                 |                                          |
 
 ---
 
-## Requirements
+## Requisitos
 
-- [NEAR Account](https://docs.near.org/docs/develop/basics/create-account) _(with access to private key or seed phrase)_
+- [Cuenta NEAR](https://docs.near.org/docs/develop/basics/create-account) _(Con acceso a llave privada o frase)_
 - [Node.js](https://nodejs.org/en/download/package-manager/)
-- [npm](https://www.npmjs.com/get-npm) or [Yarn](https://yarnpkg.com/getting-started/install)
-- API request tool such as [Postman](https://www.postman.com/downloads/)
+- [npm](https://www.npmjs.com/get-npm) o [Yarn](https://yarnpkg.com/getting-started/install)
+- Herramienta API como Postman [Postman](https://www.postman.com/downloads/)
 
 ---
 
-## Setup
+## Configuración
 
-1. Clone repository
+1. Clonar repositorio
 
 ```bash
-git clone git@github.com:near-examples/near-api-server.git
+git clone git@github.com:miguelacosta84/NEAR-lista-de-precios.git
 ```
 
-2. Install dependencies
+2. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-3. Configure `near-api-server.config.json`
+3. Configurar `near-api-server.config.json`
 
-Default settings:
+Configuracion default:
 
 ```json
 {
@@ -70,9 +56,9 @@ Default settings:
 }
 ```
 
-_**Note:** `init_disabled` determines if params can be changed via `/init` route._
+_**Note:** `init_disabled` no es utilizado
 
-4. Start server
+4. Iniciar Servidor
 
 ```bash
 node app
@@ -80,34 +66,32 @@ node app
 
 ---
 
-# Contracts
+# CONTRATOS
 
 ## `/deploy`
 
-> _Deploys a smart contract to the NEAR blockchain based on the wasm file located in `/contracts` folder._
+> _Despliega un Contrato en la red blockchain de NEAR basado en el archivo WASM de la carpeta  `/contracts` ._
 
 **Method:** **`POST`**
 
 | Param                            | Description                                                                          |
 | -------------------------------- | ------------------------------------------------------------------------------------ |
-| `account_id`                     | _Account id that you will be deploying the contract to._                             |
-| `seed_phrase` _OR_ `private_key` | _Seed phrase OR private key of the account id above._                                |
-| `contract`                       | _wasm file of compiled contract located in the `/contracts` folder of this project._ |
+| `account_id`                     | _Cuenta sobre la que se desplegara el contrato._                             |
+| `seed_phrase` _OR_ `private_key` | _Seed phrase O private key del id de la cuenta indicada en `account_id`._                                |
+| `contract`                       | _Archivo WASM ubicado en la carpeta `/contracts` resultante de compilar el contrato del proyecto._ |
 
-_**Note:** Use [`near login`](https://docs.near.org/docs/tools/near-cli#near-login) to save your key pair to your local machine._
-
-Example:
+Ejemplo:
 
 ```json
 {
-  "account_id": "example.testnet",
+  "account_id": "dev-1636081698178-54540899156051",
   "seed_phrase": "witch collapse practice feed shame open despair creek road again ice least",
-  "contract": "nft_simple.wasm"
+  "contract": "save-together.wasm"
 }
 ```
 
 <details>
-<summary><strong>Example Response:</strong> </summary>
+<summary><strong>Respuesta ejemplo:</strong> </summary>
 <p>
 
 ```json
@@ -116,10 +100,10 @@ Example:
     "SuccessValue": ""
   },
   "transaction": {
-    "signer_id": "example.testnet",
+    "signer_id": "dev-1636081698178-54540899156051",
     "public_key": "ed25519:Cgg4i7ciid8uG4K5Vnjzy5N4PXLst5aeH9ApRAUA3y8U",
     "nonce": 5,
-    "receiver_id": "example.testnet",
+    "receiver_id": "dev-1636081698178-54540899156051",
     "actions": [
       {
         "DeployContract": {
@@ -148,7 +132,7 @@ Example:
       "receipt_ids": ["D94GcZVXE2WgPGuaJPJq8MdeEUidrN1FPkuU75NXWm7X"],
       "gas_burnt": 1733951676474,
       "tokens_burnt": "173395167647400000000",
-      "executor_id": "example.testnet",
+      "executor_id": "dev-1636081698178-54540899156051",
       "status": {
         "SuccessReceiptId": "D94GcZVXE2WgPGuaJPJq8MdeEUidrN1FPkuU75NXWm7X"
       }
@@ -173,7 +157,7 @@ Example:
         "receipt_ids": [],
         "gas_burnt": 1733951676474,
         "tokens_burnt": "173395167647400000000",
-        "executor_id": "example.testnet",
+        "executor_id": "dev-1636081698178-54540899156051",
         "status": {
           "SuccessValue": ""
         }
@@ -188,665 +172,674 @@ Example:
 
 ---
 
-## `/view`
+## `/addProduct`
 
-> _Performs a smart contract view call that is free of charge (no gas burnt)._
-
-**Method:** **`POST`**
-
-| Param      | Description                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------- |
-| `contract` | _Account id of the smart contract you are calling._                                       |
-| `method`   | _Name of the public method on the contract you are calling._                              |
-| `params`   | _Arguments the method of the contract takes. Pass an empty object if no args are needed._ |
-
-Example:
-
-```json
-{
-  "contract": "inotel.pool.f863973.m0",
-  "method": "get_accounts",
-  "params": { "from_index": 0, "limit": 5 }
-}
-```
-
-<details>
-<summary><strong>Example Response:</strong> </summary>
-<p>
-
-```json
-[
-  {
-    "account_id": "ino.lockup.m0",
-    "unstaked_balance": "0",
-    "staked_balance": "2719843984800963837328608365424",
-    "can_withdraw": true
-  },
-  {
-    "account_id": "ino.testnet",
-    "unstaked_balance": "2",
-    "staked_balance": "3044983795632859169857527919579",
-    "can_withdraw": true
-  },
-  {
-    "account_id": "ino.stakewars.testnet",
-    "unstaked_balance": "2",
-    "staked_balance": "21704174266817478470830456026",
-    "can_withdraw": true
-  },
-  {
-    "account_id": "ds4.testnet",
-    "unstaked_balance": "3",
-    "staked_balance": "10891355794195012441764921",
-    "can_withdraw": true
-  },
-  {
-    "account_id": "32oijafsiodjfas.testnet",
-    "unstaked_balance": "3",
-    "staked_balance": "383757424103247547511904666",
-    "can_withdraw": true
-  }
-]
-```
-
-</p>
-</details>
-
----
-
-## `/call`
-
-> _Performs a smart contract call that changes state and burns gas._
+> _Agrega un producto al listado en el storage del blockchain._
 
 **Method:** **`POST`**
 
 | Param                            | Description                                                                                                           |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `account_id`                     | _Account id that will be performing the call and will be charged for gas and attached tokens / deposit._              |
-| `seed_phrase` _OR_ `private_key` | _Seed phrase OR private key of the account id above._                                                                 |
-| `contract`                       | _Account id of the smart contract you will be calling._                                                               |
-| `method`                         | _Public method on the smart contract that you will be calling._                                                       |
-| `params`                         | _Arguments the method of the contract takes. Pass an empty object if no args are needed._                             |
-| `attached_gas`                   | _Amount of gas you will be attaching to the call in [TGas](https://docs.near.org/docs/concepts/gas#thinking-in-gas)._ |
-| `attached_tokens`                | _Amount of tokens to be sent to the contract you are calling in yoctoNEAR (10^-24 NEAR)._                             |
-
-_**Note:** Use [`near login`](https://docs.near.org/docs/tools/near-cli#near-login) to save your key pair to your local machine._
+| `account_id`                     | _Cuenta que ejecutara el llamado al metodo del contrato y pagara el costo en gas._              |
+| `seed_phrase` _O_ `private_key` | _Seed phrase O private key del id de la cuenta indicada en account_id._                                                                 |
+| `contract`                       | _Account id del contrato que estas llamando._                                                               |
+| `method`                         | _Metodo publico correspondiente al contrato que se esta mandando llamar._                                                       |
+| `params`                         | _Argumentos del metodo que se manda llamar. Su uso es opcional._                             |
 
 Example:
 
 ```json
 {
-  "account_id": "example.testnet",
+  "account_id": "dev-1636081698178-54540899156051",
   "private_key": "2Kh6PJjxH5PTTsVnYqtgnnwXHeafvVGczDXoCb33ws8reyq8J4oBYix1KP2ugRQ7q9NQUyPcVFTtbSG3ARVKETfK",
-  "contract": "guest-book.testnet",
-  "method": "addMessage",
-  "params": { "text": "Hello World" },
-  "attached_gas": "100000000000000",
-  "attached_tokens": "0"
+  "contract": "dev-1636081698178-54540899156051",
+  "method": "addProduct",
+  "params": { "name":"Tortillas","price":"15","store":"Soriana","myListId":"102" }
 }
 ```
 
 
 <details>
-<summary><strong>Example Response:</strong> </summary>
+<summary><strong>Respuesta ejemplo:</strong> </summary>
 <p>
 
 ```json
 {
-  "status": {
-    "SuccessValue": ""
-  },
-  "transaction": {
-    "signer_id": "example.testnet",
-    "public_key": "ed25519:ASZEids5Qa8XMHX2S7LRL4bQRczi4YuMWXSM7S1HE5b",
-    "nonce": 4,
-    "receiver_id": "guest-book.testnet",
-    "actions": [
-      {
-        "FunctionCall": {
-          "method_name": "addMessage",
-          "args": "eyJ0ZXh0IjoiSGVsbG8gV29ybGQifQ==",
-          "gas": 100000000000000,
-          "deposit": "0"
-        }
-      }
-    ],
-    "signature": "ed25519:4T9FqsjYBxcitjd5GgHrv3i3hcdcJSNcwwG3jBUgs7zZCZ3uShAK44Hi3oYFefhr8e5UW3LLD49ofRpGXKwGqqot",
-    "hash": "CniHtfQVzcyVWJaUrQibJyGdhLi5axsjsoSRvvFbJ1jv"
-  },
-  "transaction_outcome": {
-    "proof": [
-      {
-        "hash": "EkzDGbbBHSAuJcCPmhKSqbnBKyLrMgXkrTEZZZQudHeH",
-        "direction": "Right"
-      },
-      {
-        "hash": "36j4PK6fsLChiVTBQnXS1ywVSgJgHo7FtWzd5y5jkK1B",
-        "direction": "Right"
-      }
-    ],
-    "block_hash": "CUAu2deED8UX4vkerCbsTMR7YkeKt8RQXknYMNrVvM7C",
-    "id": "CniHtfQVzcyVWJaUrQibJyGdhLi5axsjsoSRvvFbJ1jv",
-    "outcome": {
-      "logs": [],
-      "receipt_ids": ["B7xAYoga5vrKERK7wY7EHa2Z74LaRJwqPsh4esLrKeQF"],
-      "gas_burnt": 2427992549888,
-      "tokens_burnt": "242799254988800000000",
-      "executor_id": "example.testnet",
-      "status": {
-        "SuccessReceiptId": "B7xAYoga5vrKERK7wY7EHa2Z74LaRJwqPsh4esLrKeQF"
-      }
-    }
-  },
-  "receipts_outcome": [
-    {
-      "proof": [
-        {
-          "hash": "6Uo6BajpAxiraJEv69RwhjYnC86u56cw29vRDB1SV4dv",
-          "direction": "Right"
-        }
-      ],
-      "block_hash": "Ecq6pK74uiJFKxPTaasYuQcsEznnQjdzMAfsyrBpDo2u",
-      "id": "B7xAYoga5vrKERK7wY7EHa2Z74LaRJwqPsh4esLrKeQF",
-      "outcome": {
-        "logs": [],
-        "receipt_ids": ["6S6m1TYuVPYovLu9FHGV5oLRnDXeNQ8NhXxYjcr91xAN"],
-        "gas_burnt": 3766420707221,
-        "tokens_burnt": "376642070722100000000",
-        "executor_id": "guest-book.testnet",
+    "isError": false,
+    "message": "",
+    "id": 0,
+    "exist": false,
+    "rows": [],
+    "code": 200,
+    "modelo": {
+        "receipts_outcome": [
+            {
+                "block_hash": "5Qd3KaCW5Tk1WSTUoew1cM62nLQC6HpSc84VWD1As9D2",
+                "id": "D55c6pHkxx8yPXPvcAeAwkGP5zMZu8adYGkzPsAyBFgi",
+                "outcome": {
+                    "executor_id": "dev-1636077519984-29378305835325",
+                    "gas_burnt": 5456675905386,
+                    "logs": [],
+                    "metadata": {
+                        "gas_profile": [
+                            {
+                                "cost": "BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "2647681110"
+                            },
+                            {
+                                "cost": "CONTRACT_COMPILE_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "35445963"
+                            },
+                            {
+                                "cost": "CONTRACT_COMPILE_BYTES",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "3903234000"
+                            },
+                            {
+                                "cost": "READ_MEMORY_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "20878905600"
+                            },
+                            {
+                                "cost": "READ_MEMORY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "604411947"
+                            },
+                            {
+                                "cost": "WRITE_MEMORY_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "5607589722"
+                            },
+                            {
+                                "cost": "WRITE_MEMORY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "204282900"
+                            },
+                            {
+                                "cost": "READ_REGISTER_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "5034330372"
+                            },
+                            {
+                                "cost": "READ_REGISTER_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "7392150"
+                            },
+                            {
+                                "cost": "WRITE_REGISTER_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "8596567458"
+                            },
+                            {
+                                "cost": "WRITE_REGISTER_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "288918864"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "192590208000"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "2325934611"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_VALUE_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "3256946595"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_EVICTED_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "32117307"
+                            },
+                            {
+                                "cost": "STORAGE_READ_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "56356845750"
+                            },
+                            {
+                                "cost": "STORAGE_READ_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "402382929"
+                            },
+                            {
+                                "cost": "STORAGE_READ_VALUE_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "5611005"
+                            },
+                            {
+                                "cost": "STORAGE_HAS_KEY_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "54039896625"
+                            },
+                            {
+                                "cost": "STORAGE_HAS_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "246326760"
+                            },
+                            {
+                                "cost": "TOUCHING_TRIE_NODE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "2334783609270"
+                            }
+                        ],
+                        "version": 1
+                    },
+                    "receipt_ids": [
+                        "5bczBo7YHqUGFRuqXf8QYUkATQu1tgSqhxtnAr76szD2"
+                    ],
+                    "status": {
+                        "SuccessValue": ""
+                    },
+                    "tokens_burnt": "545667590538600000000"
+                },
+                "proof": [
+                    {
+                        "direction": "Left",
+                        "hash": "AKAjEvJb2C6UFAXCokG76HKjacypLaWhomsVEgABCcmH"
+                    }
+                ]
+            },
+            {
+                "block_hash": "jVnRvVu1SRQUXA16rRzJvsssLRi7Ui1shM6D2jtw2de",
+                "id": "5bczBo7YHqUGFRuqXf8QYUkATQu1tgSqhxtnAr76szD2",
+                "outcome": {
+                    "executor_id": "dev-1636077519984-29378305835325",
+                    "gas_burnt": 223182562500,
+                    "logs": [],
+                    "metadata": {
+                        "gas_profile": [],
+                        "version": 1
+                    },
+                    "receipt_ids": [],
+                    "status": {
+                        "SuccessValue": ""
+                    },
+                    "tokens_burnt": "0"
+                },
+                "proof": []
+            }
+        ],
         "status": {
-          "SuccessValue": ""
+            "SuccessValue": ""
+        },
+        "transaction": {
+            "actions": [
+                {
+                    "FunctionCall": {
+                        "args": "eyJuYW1lIjoiQkFUIERFIEJBU0VCQUxMIiwicHJpY2UiOiIyMzAiLCJzdG9yZSI6IldhbHRtYXJ0IiwibXlMaXN0SWQiOiI0In0=",
+                        "deposit": "0",
+                        "gas": 30000000000000,
+                        "method_name": "addProduct"
+                    }
+                }
+            ],
+            "hash": "GGi7SMumYVwBnUHkEmFta1SCT9Tq1ZLCsB2hErAZ5yp8",
+            "nonce": 70093263000023,
+            "public_key": "ed25519:9VFReAeRicyUKjx3A6vFqScSAALB3utmG3gDzKx552Tt",
+            "receiver_id": "dev-1636077519984-29378305835325",
+            "signature": "ed25519:225G927xHshu3G2hGj1UTf926DxRvvQSK7cEefcdmk18scMLyepafxWqbYAhTqywCcTxpM9xGHua5ocx5zRA8Xq2",
+            "signer_id": "dev-1636077519984-29378305835325"
+        },
+        "transaction_outcome": {
+            "block_hash": "5Qd3KaCW5Tk1WSTUoew1cM62nLQC6HpSc84VWD1As9D2",
+            "id": "GGi7SMumYVwBnUHkEmFta1SCT9Tq1ZLCsB2hErAZ5yp8",
+            "outcome": {
+                "executor_id": "dev-1636077519984-29378305835325",
+                "gas_burnt": 2428108818456,
+                "logs": [],
+                "metadata": {
+                    "gas_profile": null,
+                    "version": 1
+                },
+                "receipt_ids": [
+                    "D55c6pHkxx8yPXPvcAeAwkGP5zMZu8adYGkzPsAyBFgi"
+                ],
+                "status": {
+                    "SuccessReceiptId": "D55c6pHkxx8yPXPvcAeAwkGP5zMZu8adYGkzPsAyBFgi"
+                },
+                "tokens_burnt": "242810881845600000000"
+            },
+            "proof": [
+                {
+                    "direction": "Right",
+                    "hash": "5RGZ9x3jgBoLWKfQvHqQFjJUGACT8Lf9a4r9w6SXYKxP"
+                }
+            ]
         }
-      }
     },
-    {
-      "proof": [
+    "request": [],
+    "errors": []
+}
+
+```
+
+</p>
+</details>
+
+---
+
+
+## `/getAllProducts`
+
+> _Obtiene un listado de productos almacenados en el storage del blockchain._
+
+**Method:** **`POST`**
+
+| Param                            | Description                                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `account_id`                     | _Cuenta que ejecutara el llamado al metodo del contrato y pagara el costo en gas._              |
+| `seed_phrase` _O_ `private_key` | _Seed phrase O private key del id de la cuenta indicada en account_id._                                                                 |
+| `contract`                       | _Account id del contrato que estas llamando._                                                               |
+| `method`                         | _Metodo publico correspondiente al contrato que se esta mandando llamar._                                                       |
+| `params`                         | _Argumentos del metodo que se manda llamar. Su uso es opcional._                             |
+
+Example:
+
+```json
+{
+  "account_id": "dev-1636081698178-54540899156051",
+  "private_key": "2Kh6PJjxH5PTTsVnYqtgnnwXHeafvVGczDXoCb33ws8reyq8J4oBYix1KP2ugRQ7q9NQUyPcVFTtbSG3ARVKETfK",
+  "contract": "dev-1636081698178-54540899156051",
+  "method": "getAllProducts"
+}
+```
+
+
+<details>
+<summary><strong>Respuesta ejemplo:</strong> </summary>
+<p>
+
+```json
+
+```
+
+</p>
+</details>
+
+---
+
+
+## `/getAllProductsByListId`
+
+> _Obtiene un listado de productos ordenados por categoria almacenados en el storage del blockchain._
+
+**Method:** **`POST`**
+
+| Param                            | Description                                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `account_id`                     | _Cuenta que ejecutara el llamado al metodo del contrato y pagara el costo en gas._              |
+| `seed_phrase` _O_ `private_key` | _Seed phrase O private key del id de la cuenta indicada en account_id._                                                                 |
+| `contract`                       | _Account id del contrato que estas llamando._                                                               |
+| `method`                         | _Metodo publico correspondiente al contrato que se esta mandando llamar._                                                       |
+| `params`                         | _Argumentos del metodo que se manda llamar. Su uso es opcional._                             |
+
+Example:
+
+```json
+{
+  "account_id": "dev-1636081698178-54540899156051",
+  "private_key": "2Kh6PJjxH5PTTsVnYqtgnnwXHeafvVGczDXoCb33ws8reyq8J4oBYix1KP2ugRQ7q9NQUyPcVFTtbSG3ARVKETfK",
+  "contract": "dev-1636081698178-54540899156051",
+  "method": "getAllProductsByListId",
+	"params": {"listId":"102"}
+}
+```
+
+
+<details>
+<summary><strong>Respuesta ejemplo:</strong> </summary>
+<p>
+
+```json
+
+```
+
+</p>
+</details>
+
+---
+
+
+## `/getProduct`
+
+> _Obtiene un producto por id almacenado en el storage del blockchain._
+
+**Method:** **`POST`**
+
+| Param                            | Description                                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `account_id`                     | _Cuenta que ejecutara el llamado al metodo del contrato y pagara el costo en gas._              |
+| `seed_phrase` _O_ `private_key` | _Seed phrase O private key del id de la cuenta indicada en account_id._                                                                 |
+| `contract`                       | _Account id del contrato que estas llamando._                                                               |
+| `method`                         | _Metodo publico correspondiente al contrato que se esta mandando llamar._                                                       |
+| `params`                         | _Argumentos del metodo que se manda llamar. Su uso es opcional._                             |
+
+Example:
+
+```json
+{
+  "account_id": "dev-1636081698178-54540899156051",
+  "private_key": "2Kh6PJjxH5PTTsVnYqtgnnwXHeafvVGczDXoCb33ws8reyq8J4oBYix1KP2ugRQ7q9NQUyPcVFTtbSG3ARVKETfK",
+  "contract": "dev-1636081698178-54540899156051",
+  "method": "getProduct",
+	"params": {"key":"0"}
+}
+```
+
+
+<details>
+<summary><strong>Respuesta ejemplo:</strong> </summary>
+<p>
+
+```json
+{
+    "isError": false,
+    "message": "",
+    "id": 0,
+    "exist": false,
+    "rows": [],
+    "code": 200,
+    "modelo": [],
+    "request": [],
+    "errors": [],
+    "data": [
         {
-          "hash": "2za2YKUhyMfWbeEL7UKZxZcQbAqEmSPgPoYh9QDdeJQi",
-          "direction": "Left"
+            "id": "1",
+            "name": "Balon de futbol",
+            "price": "120",
+            "store": "Soriana",
+            "myListId": "4"
         },
         {
-          "hash": "61aHEiTBBbPU8UEXgSQh42TujFkHXQQMSuTh13PLPwbG",
-          "direction": "Right"
+            "id": "2",
+            "name": "Arroz los valles",
+            "price": "35",
+            "store": "Bodega Abarrey",
+            "myListId": "1"
+        },
+        {
+            "id": "3",
+            "name": "BAT DE BASEBALL",
+            "price": "230",
+            "store": "Waltmart",
+            "myListId": "4"
         }
-      ],
-      "block_hash": "6LfpzvCBkqq7h5uG9VjAHMwSpC3HMMBSAGNGhbrAJzKP",
-      "id": "6S6m1TYuVPYovLu9FHGV5oLRnDXeNQ8NhXxYjcr91xAN",
-      "outcome": {
-        "logs": [],
-        "receipt_ids": [],
-        "gas_burnt": 0,
-        "tokens_burnt": "0",
-        "executor_id": "example.testnet",
+    ]
+}
+```
+
+</p>
+</details>
+
+---
+
+
+## `/deleteProduct`
+
+> _Obtiene un producto por id almacenado en el storage del blockchain._
+
+**Method:** **`POST`**
+
+| Param                            | Description                                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `account_id`                     | _Cuenta que ejecutara el llamado al metodo del contrato y pagara el costo en gas._              |
+| `seed_phrase` _O_ `private_key` | _Seed phrase O private key del id de la cuenta indicada en account_id._                                                                 |
+| `contract`                       | _Account id del contrato que estas llamando._                                                               |
+| `method`                         | _Metodo publico correspondiente al contrato que se esta mandando llamar._                                                       |
+| `params`                         | _Argumentos del metodo que se manda llamar. Su uso es opcional._                             |
+
+Example:
+
+```json
+{
+  "account_id": "dev-1636081698178-54540899156051",
+  "private_key": "2Kh6PJjxH5PTTsVnYqtgnnwXHeafvVGczDXoCb33ws8reyq8J4oBYix1KP2ugRQ7q9NQUyPcVFTtbSG3ARVKETfK",
+  "contract": "dev-1636081698178-54540899156051",
+  "method": "deleteProduct",
+	"params": {"key":"0"}
+}
+```
+
+
+<details>
+<summary><strong>Respuesta ejemplo:</strong> </summary>
+<p>
+
+```json
+{
+    "isError": false,
+    "message": "",
+    "id": 0,
+    "exist": false,
+    "rows": [],
+    "code": 200,
+    "modelo": {
+        "receipts_outcome": [
+            {
+                "block_hash": "3XdH6bxSNvybCb9GphS94GwtfVD9fSo56L239yGZ2CeD",
+                "id": "A873A8pA3tf7U8cg9oi9Yz6rYMPq8X8YugN7AXwwfxX9",
+                "outcome": {
+                    "executor_id": "dev-1636077519984-29378305835325",
+                    "gas_burnt": 7011999229704,
+                    "logs": [],
+                    "metadata": {
+                        "gas_profile": [
+                            {
+                                "cost": "BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "4501057887"
+                            },
+                            {
+                                "cost": "CONTRACT_COMPILE_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "35445963"
+                            },
+                            {
+                                "cost": "CONTRACT_COMPILE_BYTES",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "3903234000"
+                            },
+                            {
+                                "cost": "READ_MEMORY_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "23488768800"
+                            },
+                            {
+                                "cost": "READ_MEMORY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "330715971"
+                            },
+                            {
+                                "cost": "WRITE_MEMORY_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "11215179444"
+                            },
+                            {
+                                "cost": "WRITE_MEMORY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "315957552"
+                            },
+                            {
+                                "cost": "READ_REGISTER_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "10068660744"
+                            },
+                            {
+                                "cost": "READ_REGISTER_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "11433192"
+                            },
+                            {
+                                "cost": "WRITE_REGISTER_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "20058657402"
+                            },
+                            {
+                                "cost": "WRITE_REGISTER_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "840145644"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "64196736000"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "916277271"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_VALUE_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "31018539"
+                            },
+                            {
+                                "cost": "STORAGE_WRITE_EVICTED_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "32117307"
+                            },
+                            {
+                                "cost": "STORAGE_READ_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "169070537250"
+                            },
+                            {
+                                "cost": "STORAGE_READ_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "1021433589"
+                            },
+                            {
+                                "cost": "STORAGE_READ_VALUE_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "589155525"
+                            },
+                            {
+                                "cost": "STORAGE_REMOVE_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "106946061000"
+                            },
+                            {
+                                "cost": "STORAGE_REMOVE_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "764407680"
+                            },
+                            {
+                                "cost": "STORAGE_REMOVE_RET_VALUE_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "1199281824"
+                            },
+                            {
+                                "cost": "STORAGE_HAS_KEY_BASE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "108079793250"
+                            },
+                            {
+                                "cost": "STORAGE_HAS_KEY_BYTE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "615816900"
+                            },
+                            {
+                                "cost": "TOUCHING_TRIE_NODE",
+                                "cost_category": "WASM_HOST_COST",
+                                "gas_used": "3880571378166"
+                            }
+                        ],
+                        "version": 1
+                    },
+                    "receipt_ids": [
+                        "HVQqC8zMJxnhhciFppgdFxbAsMd3vv8boByDaZK77L1J"
+                    ],
+                    "status": {
+                        "SuccessValue": ""
+                    },
+                    "tokens_burnt": "701199922970400000000"
+                },
+                "proof": [
+                    {
+                        "direction": "Left",
+                        "hash": "Efcneb7gaGwzyYNarcHEBjrZXSUFZn2bt8SvcGHGACEt"
+                    }
+                ]
+            },
+            {
+                "block_hash": "F4zRgUy7c7jMYEnEVvG2zVsyjHEDQEbeXbDrVdkGxs8s",
+                "id": "HVQqC8zMJxnhhciFppgdFxbAsMd3vv8boByDaZK77L1J",
+                "outcome": {
+                    "executor_id": "dev-1636077519984-29378305835325",
+                    "gas_burnt": 223182562500,
+                    "logs": [],
+                    "metadata": {
+                        "gas_profile": [],
+                        "version": 1
+                    },
+                    "receipt_ids": [],
+                    "status": {
+                        "SuccessValue": ""
+                    },
+                    "tokens_burnt": "0"
+                },
+                "proof": []
+            }
+        ],
         "status": {
-          "SuccessValue": ""
+            "SuccessValue": ""
+        },
+        "transaction": {
+            "actions": [
+                {
+                    "FunctionCall": {
+                        "args": "eyJrZXkiOiIzIn0=",
+                        "deposit": "0",
+                        "gas": 30000000000000,
+                        "method_name": "deleteProduct"
+                    }
+                }
+            ],
+            "hash": "4USCGvowa6VFwTo8b4t81fEk969jfL9ZCPjXXpZTCfLN",
+            "nonce": 70093263000024,
+            "public_key": "ed25519:9VFReAeRicyUKjx3A6vFqScSAALB3utmG3gDzKx552Tt",
+            "receiver_id": "dev-1636077519984-29378305835325",
+            "signature": "ed25519:4mHm3w7yi3a4rxUENCeV6KxV2FXTAu5PJPXyBjvfzz2bLysnfkWZxHNvbZAdh2LJ8GGEvfSsPiPoDpZkrqUkDYb9",
+            "signer_id": "dev-1636077519984-29378305835325"
+        },
+        "transaction_outcome": {
+            "block_hash": "3XdH6bxSNvybCb9GphS94GwtfVD9fSo56L239yGZ2CeD",
+            "id": "4USCGvowa6VFwTo8b4t81fEk969jfL9ZCPjXXpZTCfLN",
+            "outcome": {
+                "executor_id": "dev-1636077519984-29378305835325",
+                "gas_burnt": 2427974662416,
+                "logs": [],
+                "metadata": {
+                    "gas_profile": null,
+                    "version": 1
+                },
+                "receipt_ids": [
+                    "A873A8pA3tf7U8cg9oi9Yz6rYMPq8X8YugN7AXwwfxX9"
+                ],
+                "status": {
+                    "SuccessReceiptId": "A873A8pA3tf7U8cg9oi9Yz6rYMPq8X8YugN7AXwwfxX9"
+                },
+                "tokens_burnt": "242797466241600000000"
+            },
+            "proof": [
+                {
+                    "direction": "Right",
+                    "hash": "GGWiS8wbPRzG5iYcFAovA9NrwCCH37iZ9sVkWdCrBvCT"
+                }
+            ]
         }
-      }
-    }
-  ]
-}
-```
-
-</p>
-</details>
-
----
-
-# Utils
-
----
-
-## `/init`
-
-> _Configures `near-api-server.config.json` and creates a master account that stores credentials in this file. This allows for "simple methods" to be called where you won't have to pass as many parameters, primarily the master account id and private key or seed phrase._
-
-**ATTN: SERVER MUST BE RESTARTED AFTER CALLING THIS ENDPOINT**
-
-**Method:** **`POST`**
-
-| Param                            | Description                                                                                                             |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `master_account_id`              | _Master account that has full access to the NFT contract below_                                                         |
-| `seed_phrase` _OR_ `private_key` | _Seed phrase OR private key of the account id above._                                                                   |
-| `nft_contract`                   | _Contract account that has NFT contract deployed to it_                                                                 |
-| `server_host`                    | _Public IP address for your API server (localhost is default)_                                                          |
-| `server_port`                    | _(Port your API server will listen on)_                                                                                 |
-| `rpc_node`                       | _[Network](https://docs.near.org/docs/concepts/networks) your server will be running on (testnet, mainnet, or betanet)_ |
-
-_**Note:** Use [`near login`](https://docs.near.org/docs/tools/near-cli#near-login) to save your key pair to your local machine._
-
-Example:
-
-```json
-{
-  "master_account_id": "example.testnet",
-  "seed_phrase": "seed phrase for master_account_id goes here",
-  "nft_contract": "nft-contract.example.testnet",
-  "server_host": "localhost",
-  "server_port": 3000,
-  "rpc_node": "https://rpc.testnet.near.org"
-}
-```
-
-Example Response:
-
-```json
-{
-  "text": "Settings updated."
-}
-```
-
----
-
-## `/create_user`
-
-> _Creates a NEAR [sub-account](https://docs.near.org/docs/concepts/account#subaccounts) using initialized master account and saves credentials to `/storage` directory. Requires [`/init`](#init) configuration with master account._
-
-**Note:** _Only letters, digits, and - or \_ separators are allowed._
-
-**Method:** **`POST`**
-
-Example:
-
-```
-{
-    "name" : "satoshi"
-}
-```
-
-Example Response:
-
-```json
-{
-  "text": "Account satoshi.example.testnet created. Public key: ed25519:HW4koiHqLi5WdVHWy9fqBWHbLRrzfmvCiRAUVhMa14T2"
-}
-```
-
----
-
-## `/parse_seed_phrase`
-
-> _Converts seed phrase into public / private key pair._
-
-**Method:** **`POST`**
-
-Example:
-
-```
-{
-    "seed_phrase" : "witch collapse practice feed shame open despair creek road again ice least"
-}
-```
-
-Example Response:
-
-```
-{
-    "seedPhrase": "witch collapse practice feed shame open despair creek road again ice least",
-    "secretKey": "ed25519:41oHMLtYygTsgwDzaMdjWRq48Sy9xJsitJGmMxgA9A7nvd65aT8vQwAvRdHi1nruPP47B6pNhW5T5TK8SsqCZmjn",
-    "publicKey": "ed25519:Cgg4i7ciid8uG4K5Vnjzy5N4PXLst5aeH9ApRAUA3y8U"
-}
-```
-
----
-
-## `/balance`
-
-> _Displays account balance in yoctoNEAR (10^-24 NEAR)._
-
-**Method:** **`GET`**
-
-Example:
-
-```
-http://localhost:3000/balance/name.testnet
-```
-
-Example Response:
-
-```
-199999959035075000000000000
-```
-
----
-
-## `/keypair`
-
-> _Generates Ed25519 key pair._
-
-**Method:** **`GET`**
-
-Example:
-
-```
-http://localhost:3000/keypair
-```
-
-Example Response:
-
-```
-{
-  "public_key": "ed25519:3pNJK3fwP14UEbPjQqgDASwWR4XmbAEQBeNsyThhtNKY",
-  "private_key": "3s9nVrCU4MER3w9cxXcJM58RGRzFNJnLzo9vgQiNrkuGW3Xp7Up6cYnY4JKQZ7Qp3GhmXckrApRyDPAfzo2oCm8a"
-}
-```
-
-## `/explorer`
-
-> _Run SELECT query in NEAR explorer database._
-
-**Method:** **`POST`**
-
-| Param                            | Description                                            |
-| -------------------------------- | ------------------------------------------------------ |
-| `user`                           | _Public account, `public_readonly`_                    |
-| `host`                           | _NEAR indexer host, `35.184.214.98`_                   |
-| `database`                       | _Name of the database, `testnet_explorer`_             |
-| `password`                       | _Password, `nearprotocol`_                             |
-| `port`                           | _Port, `5432`_                                         |
-| `parameters`                     | _Array of query parameters, `[]`_                      |
-| `query`                          | _Query without tabs, linebreaks and special characters_|
-
-
-Example:
-
-```json
-{
-  "user": "public_readonly",
-  "host": "35.184.214.98",
-  "database": "testnet_explorer",
-  "password": "nearprotocol",
-  "port": 5432,
-  "parameters": ["testnet", 1],
-  "query": "SELECT * FROM action_receipt_actions WHERE receipt_receiver_account_id = $1 LIMIT $2"}
-}
-```
-
-<details>
-<summary><strong>Example Response:</strong> </summary>
-<p>
-
-```json
-[
-  {
-    "receipt_id": "GZMyzjDWPJLjrCuQG82uHj3xRVHwdDnWHH1gCnSBejkR",
-    "index_in_action_receipt": 0,
-    "action_kind": "TRANSFER",
-    "args": {
-      "deposit": "1273665187500000000"
     },
-    "receipt_predecessor_account_id": "system",
-    "receipt_receiver_account_id": "testnet",
-    "receipt_included_in_block_timestamp": "1619207391172257749"
-  }
-]
+    "request": [],
+    "errors": []
+}
 ```
 
 </p>
 </details>
-
----
-
-# NFTs
-
----
-
-## `/mint_nft`
-
-> _Mints a new NFT on a specified contract._
-
-**Method:** **`POST`**
-
-### Standard NFT Minting
-
-| Param                            | Description                                            |
-| -------------------------------- | ------------------------------------------------------ |
-| `token_id`                       | _ID for new token you are minting_                     |
-| `metadata`                       | _Metadata for the new token as a string._              |
-| `account_id`                     | _Account ID for the new token owner._                  |
-| `seed_phrase` _OR_ `private_key` | _Seed phrase OR private key for the NFT contract._     |
-| `nft_contract`                   | _Account ID for the NFT contract your are minting on._ |
-
-_**Note:** Use [`near login`](https://docs.near.org/docs/tools/near-cli#near-login) to save your key pair to your local machine._
-
-Example:
-
-```
-{
-    "token_id": "EXAMPLE-TOKEN",
-    "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-    "account_id": "example.testnet",
-    "private_key": "41oHMLtYygTsgwDzaMdjWRq48Sy9xJsitJGmMxgA9A7nvd65aT8vQwAvRdHi1nruPP47B6pNhW5T5TK8SsqCZmjn",
-    "contract": "nft.example.near",
-}
-```
-
-### Simple NFT Minting
-
-_Requires [`/init`](#init) configuration with master account._
-
-Example:
-
-```json
-{
-  "token_id": "EXAMPLE_TOKEN",
-  "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu"
-}
-```
-
-<details>
-<summary><strong>Example Response:</strong> </summary>
-<p>
-
-```json
-[
-  {
-    "token": {
-      "owner_id": "example.testnet",
-      "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-      "approved_account_ids": [],
-      "token_id": "EXAMPLE_TOKEN"
-    },
-    "tx": "Be7tV1h2dvhg53S2rartojeSUbNfQTB7ypuprmb6xRhw"
-  }
-]
-```
-
-</p>
-</details>
-
-_(`tx` is the transaction hash that can be queried in [NEAR Explorer](http://explorer.testnet.near.org))_
-
----
-
-### Batch NFT minting (simple)
-
-_Requires [`/init`](#init) configuration with master account._
-
-Example:
-
-```json
-{
-  "token_id": "EXAMPLE_TOKEN_{inc}",
-  "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-  "min": 31,
-  "max": 33
-}
-```
-
-_(This creates `EXAMPLE_TOKEN_31`, `EXAMPLE_TOKEN_32`, & `EXAMPLE_TOKEN_33`)_
-
-<details>
-<summary><strong>Example Response:</strong> </summary>
-<p>
-
-```json
-[
-  {
-    "tx": "mAL92gb6g6hhubZBRewJk5vSwmmzm2SXmwdAfYqfWcG"
-  },
-  {
-    "tx": "Dv9h8nWJLujkKpmw58ZR4QwAgPVprb4j5QarDUumoGEX"
-  },
-  {
-    "tx": "J48F3vALJBbbUguKXp6e16g5vKVwzC2LtVBpsfEVFpYa"
-  }
-]
-```
-
-</p>
-</details>
-
-_(Above response are transaction hashes that can be queried in [NEAR Explorer](http://explorer.testnet.near.org))_
-
----
-
-## `/transfer_nft`
-
-> _Transfers ownership of NFT from specified contract on behalf of provided `enforce_owner_id` signed with `owner_private_key`._
-
-**Method:** **`POST`**
-
-### Standard Transfer NFT
-
-| Param               | Description                                               |
-| ------------------- | --------------------------------------------------------- |
-| `token_id`          | _Token ID of the token being transferred_                 |
-| `receiver_id`       | _Account ID taking ownership of the NFT_                  |
-| `enforce_owner_id`  | _Account ID for the account that currently owns the NFT._ |
-| `memo`              | _Optional message to the new token holder._               |
-| `owner_private_key` | _Private key of the `enforce_owner_id`._                  |
-| `nft_contract`      | _NFT contract that the token being transferred is on._    |
-
-_**Note:** Use [`near login`](https://docs.near.org/docs/tools/near-cli#near-login) to save your key pair to your local machine._
-
-Example:
-
-```json
-{
-  "token_id": "EXAMPLE-TOKEN",
-  "receiver_id": "receiver.testnet",
-  "enforce_owner_id": "example.testnet",
-  "memo": "Here's a token I thought you might like! :)",
-  "owner_private_key": "YOUR_PRIVATE_KEY",
-  "contract": "nft.example.near"
-}
-```
-
-Example Response:
-
-```json
-{
-  "owner_id": "receiver.testnet",
-  "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-  "approved_account_ids": [],
-  "tx": "5WdNgmNeA5UNpSMDRXemwJc95MB6J22LcvAaimuN5YzF"
-}
-```
-
-_(`tx` is the transaction hash that can be queried in [NEAR Explorer](http://explorer.testnet.near.org))_
-
----
-
-### Simple Transfer NFTs
-
-> _Requires [`/init`](#init) configuration with master account._
-
-| Param              | Description                                               |
-| ------------------ | --------------------------------------------------------- |
-| `token_id`         | _Token ID of the token being transferred_                 |
-| `receiver_id`      | _Account ID taking ownership of the NFT_                  |
-| `enforce_owner_id` | _Account ID for the account that currently owns the NFT._ |
-| `memo`             | _Optional message to new token holder._                   |
-
-Example:
-
-```json
-{
-  "token_id": "EXAMPLE-TOKEN",
-  "receiver_id": "receiver.testnet",
-  "enforce_owner_id": "example.testnet",
-  "memo": "Here's a token I thought you might like! :)"
-}
-```
-
-Example Response:
-
-```json
-{
-  "owner_id": "receiver.testnet",
-  "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-  "approved_account_ids": [],
-  "tx": "5WdNgmNeA5UNpSMDRXemwJc95MB6J22LcvAaimuN5YzF"
-}
-```
-
-_(`tx` is the transaction hash that can be queried in [NEAR Explorer](http://explorer.testnet.near.org))_
-
----
-
-## `view_nft`
-
-### Standard View NFT
-
-> _Returns owner, metadata, and approved account IDs for a given token ID._
-
-**Method:** **`POST`**
-
-Example:
-
-```json
-{
-  "token_id": "EXAMPLE-TOKEN",
-  "contract": "nft.example.testnet"
-}
-```
-
-Example response:
-
-```json
-{
-  "owner_id": "example.testnet",
-  "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-  "approved_account_ids": []
-}
-```
-
----
-
-### Simple View NFT
-
-> _Receive detailed information about NFT using URL params. Requires [`/init`](#init) configuration with master account._
-
-**Method:** **`GET`**
-
-Example:
-
-`http://localhost:3000/view_nft/EXAMPLE-TOKEN`
-
-Example Response:
-
-```json
-{
-  "owner_id": "example.testnet",
-  "metadata": "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu",
-  "approved_account_ids": []
-}
-```
-
----
-
-## Faker data
-
-> Use the following tags below to use random data for testing purposes.
-
-- `{username}`
-- `{number}`
-- `{word}`
-- `{words}`
-- `{image}`
-- `{color}`
-
-## Video Presentation
-
-[![Live App Review 15 - NFT Server Side API](https://img.youtube.com/vi/d71OscmH4cA/0.jpg)](https://youtu.be/d71OscmH4cA)

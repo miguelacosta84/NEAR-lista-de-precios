@@ -2,9 +2,6 @@
 
 > Creación de listas de artículos, precios y tienda de compra basado en protocolo NEAR, se compone de un servicio backend hecho en NodeJS que interactúa con el protocolo NEAR mediante la libreria NEAR-API-JS, de esa manera se ofrece un REST API sencillo. Se integra ademas un frontend basado en Laravel que opera con los endpoints del backend para la creación y eliminación de artículos, precios y tiendas de compra en el blockchain de NEAR.
 
-###### Demo:
-* [REST API Backend con conectividad al NEAR Testnet y Laravel Frontend](https://nearpricelist.tk) 
-
 ---
 
 ## Descripcion General
@@ -843,3 +840,11 @@ Example:
 
 </p>
 </details>
+---
+
+# Pruebas Unitarias
+
+> Desde una sesion de consola acceder a `smart-contract-code` y ejecutar el comando smart-contract-code.
+```bash
+yarn asp
+```

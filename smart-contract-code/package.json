@@ -1,0 +1,19 @@
+{
+  "name": "save-together",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "near-sdk-as": "^3.2.3"
+  },
+  "dependencies": {
+    "near-cli": "^2.2.0",
+    "uuid": "^8.3.2"
+  }
+}

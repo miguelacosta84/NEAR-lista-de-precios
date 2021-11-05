@@ -1,18 +1,26 @@
 {
-    "private": true,
-    "scripts": {
-        "dev": "npm run development",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "prod": "npm run production",
-        "production": "mix --production"
-    },
-    "devDependencies": {
-        "axios": "^0.21",
-        "laravel-mix": "^6.0.6",
-        "lodash": "^4.17.19",
-        "postcss": "^8.1.14"
-    }
+  "name": "near-api-server",
+  "version": "1.1.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vadim Ilin",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/catbox-memory": "^5.0.1",
+    "@hapi/hapi": "^18.1.0",
+    "body-parser": "~1.19.0",
+    "faker": "~5.4.0",
+    "fs": "*",
+    "near-api-js": "~0.38.0",
+    "near-seed-phrase": "^0.1.0",
+    "node-fetch": "^2.6.1",
+    "path": "^0.12.7",
+    "pg": "^8.6.0"
+  },
+  "bin": {
+    "near-api-server": "./app.js"
+  }
 }

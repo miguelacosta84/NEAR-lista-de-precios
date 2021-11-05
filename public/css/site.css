@@ -1,0 +1,171 @@
+@media (min-width: 750px) {
+    .gdlogin {
+        background-image: url("/images/login.png") !important;
+        background-size: cover;
+        height: 100vh;
+    }
+}
+
+@media (min-height: 1024px) {
+    .gdlogin {
+        padding-top: 150px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (min-height: 600px) {
+    .logologin {
+        width: 150px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-height:590px) {
+    .logologin {
+        width: 80px;
+        margin-bottom: 20px;
+    }
+}
+
+.table-sx {
+    border-bottom: #094773 !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 3px !important;
+}
+
+.help-block {
+    color: red
+}
+
+table.dataTable.row-border tbody th,
+table.dataTable.row-border tbody td,
+table.dataTable.display tbody th,
+table.dataTable.display tbody td {
+    border-top: 1px solid #d1d1d1;
+}
+
+div.dataTables_wrapper div.dataTables_length select {
+    height: 28px;
+    padding: 6px 6px;
+}
+
+table.dataTable thead>tr>th {
+    background-color: #01015F;
+    color: white;
+    border-bottom: 1px solid #9b9b9b;
+    padding: 10px;
+}
+
+table.dataTable {
+    font-size: 12px;
+}
+
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+    background-color: rgba(156, 39, 176, 0.1);
+}
+
+div.dataTables_filter input {
+    width: 230px !important;
+    font-size: 12px;
+}
+
+.custom-checkbox {
+    min-height: 1rem;
+    padding-left: 0;
+    margin-right: 0;
+    cursor: pointer;
+}
+
+.custom-checkbox .custom-control-indicator {
+    content: "";
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 10px;
+    background-color: #818181;
+    border-radius: 15px;
+    margin-right: 10px;
+    -webkit-transition: background .3s ease;
+    transition: background .3s ease;
+    vertical-align: middle;
+    margin: 0 16px;
+    box-shadow: none;
+}
+
+.custom-checkbox .custom-control-indicator:after {
+    content: "";
+    position: absolute;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: #f1f1f1;
+    border-radius: 21px;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.4);
+    left: -2px;
+    top: -4px;
+    -webkit-transition: left .3s ease, background .3s ease, box-shadow .1s ease;
+    transition: left .3s ease, background .3s ease, box-shadow .1s ease;
+}
+
+.custom-checkbox .custom-control-input:checked~.custom-control-indicator {
+    background-color: #4caf50;
+    background-image: none;
+    box-shadow: none !important;
+}
+
+.custom-checkbox .custom-control-input:checked~.custom-control-indicator:after {
+    background-color: #4caf50;
+    left: 15px;
+}
+
+.custom-checkbox .custom-control-input:focus~.custom-control-indicator {
+    box-shadow: none !important;
+}
+
+.table-sx {
+    border-bottom: #567a78 !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 3px !important;
+}
+
+.help-block {
+    color: red
+}
+
+table.dataTable.row-border tbody th,
+table.dataTable.row-border tbody td,
+table.dataTable.display tbody th,
+table.dataTable.display tbody td {
+    border-top: 1px solid #d1d1d1;
+}
+
+#main-table2_wrapper{
+    width: 100%!important;
+}
+
+div.dataTables_wrapper div.dataTables_length select {
+    height: 28px;
+    padding: 6px 6px;
+}
+
+table.dataTable thead>tr>th {
+    background-color: #567a78;
+    color: white;
+    border-bottom: 1px solid #9b9b9b;
+    padding: 10px;
+}
+
+table.dataTable {
+    font-size: 12px;
+}
+
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+    background-color: rgba(156, 39, 176, 0.1);
+}
+
+div.dataTables_filter input {
+    width: 230px !important;
+    font-size: 12px;
+}

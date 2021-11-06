@@ -54,8 +54,7 @@ class MyListService  implements IServices
         try{
 
             $user = Auth::user();
-            $response = Http::get('https://api.first.org/data/v1/countries');
-
+   
             $data = array(
                 "name"     => $request->name,
                 "price"    => $request->price,
@@ -63,10 +62,10 @@ class MyListService  implements IServices
                 "myListId" => $request->myListId
             );
 
-            $response = Http::post('https://bf0a-201-165-221-194.ngrok.io/call', [
+            $response = Http::post('https://localhost:3000/call', [
                 'account_id'  => $user->accountId,
                 'private_key' => $user->privateKey,
-                'contract' => $user->accountId,
+                'contract' => 'dev-1636081698178-54540899156051',
                 'method' => 'addProduct',
                 "params" => $data
             ]);
@@ -92,8 +91,8 @@ class MyListService  implements IServices
                 "listId" => $request->myListId
             );
 
-            $response = Http::post('https://bf0a-201-165-221-194.ngrok.io/view', [
-                'contract' => $user->accountId,
+            $response = Http::post('https://localhost:3000/view', [
+                'contract' => 'dev-1636081698178-54540899156051',
                 'method' => 'getAllProductsByListId',
                 "params" => $data
             ]);
@@ -114,16 +113,15 @@ class MyListService  implements IServices
         try{
 
             $user = Auth::user();
-            $response = Http::get('https://api.first.org/data/v1/countries');
-
+    
             $data = array(
                 "key" => $request->id
             );
 
-            $response = Http::post('https://bf0a-201-165-221-194.ngrok.io/call', [
+            $response = Http::post('https://localhost:3000/call', [
                 'account_id'  => $user->accountId,
                 'private_key' => $user->privateKey,
-                'contract'    => $user->accountId,
+                'contract' => 'dev-1636081698178-54540899156051',
                 'method'      => 'deleteProduct',
                 "params"      => $data
             ]);
